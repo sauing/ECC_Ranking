@@ -47,5 +47,5 @@ MIT
 
 ## 📊 View Published Stats
 
-- [Batting Stats 2025](https://sauing.github.io/ECC_Ranking/docs/kncb_batting_stats_2025.html)
-- [Bowling Stats 2025](https://sauing.github.io/ECC_Ranking/docs/kncb_bowling_stats_2025.html)
+- [Batting Stats 2025](https://sauing.github.io/ECC_Ranking/kncb_batting_stats_2025.html)
+- [Bowling Stats 2025](https://sauing.github.io/ECC_Ranking/kncb_bowling_stats_2025.html)
