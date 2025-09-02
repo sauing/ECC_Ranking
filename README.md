@@ -45,3 +45,7 @@ This project scrapes and ranks KNCB cricket stats for Eindhoven CC, generating s
 ## License
 MIT
 
+## 📊 View Published Stats
+
+- [Batting Stats 2025](https://sauing.github.io/ECC_Ranking/kncb_batting_stats_2025.html)
+- [Bowling Stats 2025](https://sauing.github.io/ECC_Ranking/kncb_bowling_stats_2025.html)
