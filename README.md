@@ -1,3 +1,5 @@
+[![CI](https://github.com/sauing/ECC_Ranking/actions/workflows/ci.yml/badge.svg)](https://github.com/sauing/ECC_Ranking/actions/workflows/ci.yml)
+
 # ECC_Ranking: KNCB Stats Scraper
 
 This project scrapes and ranks KNCB cricket stats for Eindhoven CC, generating sortable HTML reports for bowling and batting, with ICC-style points.
