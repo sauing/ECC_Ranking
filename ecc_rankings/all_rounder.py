@@ -90,7 +90,3 @@ class AllRounderLeaderboard:
   </div>
 </body>
 </html>"""
-
-    def save_html(self, html: str):
-        with open(self.HTML_PATH, "w", encoding="utf-8") as f:
-            f.write(html)

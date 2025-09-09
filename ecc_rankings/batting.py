@@ -127,32 +127,29 @@ class BattingScraper:
             html_table = html_table.replace(f"<th>{col}</th>", f'<th data-sort-method="number">{col}</th>')
 
         return f"""<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>KNCB Batting Stats {SEASON}</title>
-  <style>
-    table {{ border-collapse: collapse; width: 100%; }}
-    th, td {{ border: 1px solid #ddd; padding: 8px; }}
-    th {{ background-color: #f2f2f2; cursor: pointer; }}
-    tr:nth-child(even) {{ background-color:#fafafa; }}
-    body {{ font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; }}
-  </style>
-  <script src="https://unpkg.com/tablesort@5.2.1/dist/tablesort.min.js"></script>
-</head>
-<body>
-  <h2>KNCB Batting Stats {SEASON} — {CLUB_NAME}</h2>
-  {html_table}
-  <script>new Tablesort(document.querySelector("table"));</script>
-  <br>
-  <div style="font-size:0.95em;color:#555;">
-    <b>Scoring & merging:</b><br>
-    Player appears once: stats merged across klassen (runs/inn/not-outs/matches summed; SR/AVG recomputed; highest=max).
-    Klasse difficulty = match-weighted average; ICC-style multi-factor (tanh) score with sample-size.
-  </div>
-</body>
-</html>"""
-
-    def save_html(self, html_page: str):
-        with open(self.HTML_PATH, "w", encoding="utf-8") as f:
-            f.write(html_page)
+                    <html>
+                    <head>
+                      <meta charset="utf-8" />
+                      <title>KNCB Batting Stats {SEASON}</title>
+                      <style>
+                        table {{ border-collapse: collapse; width: 100%; }}
+                        th, td {{ border: 1px solid #ddd; padding: 8px; }}
+                        th {{ background-color: #f2f2f2; cursor: pointer; }}
+                        tr:nth-child(even) {{ background-color:#fafafa; }}
+                        body {{ font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; }}
+                      </style>
+                      <script src="https://unpkg.com/tablesort@5.2.1/dist/tablesort.min.js"></script>
+                    </head>
+                    <body>
+                      <h2>KNCB Batting Stats {SEASON} — {CLUB_NAME}</h2>
+                      {html_table}
+                      <script>new Tablesort(document.querySelector("table"));</script>
+                      <br>
+                      <div style="font-size:0.95em;color:#555;">
+                        <b>Scoring & merging:</b><br>
+                        Player appears once: stats merged across klassen (runs/inn/not-outs/matches summed; SR/AVG recomputed; highest=max).
+                        Klasse difficulty = match-weighted average; ICC-style multi-factor (tanh) score with sample-size.
+                      </div>
+                    </body>
+                    </html>
+                """

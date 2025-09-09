@@ -1,8 +1,8 @@
 import os
 
 # Club & season
-CLUB_NAME = os.environ.get("ECC_CLUB", "Eindhoven CC")
-SEASON = os.environ.get("ECC_SEASON", "2025")
+CLUB_NAME =  "Eindhoven CC"
+SEASON = "2025"
 
 # Output directory for GitHub Pages
 OUTPUT_DIR = os.environ.get("ECC_OUTPUT_DIR", "docs")
