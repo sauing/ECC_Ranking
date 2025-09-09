@@ -1,6 +1,6 @@
 # ECC Rankings (KNCB)
 
-[![CI](https://img.shields.io/github/actions/workflow/status/sauing/ecc_ranking/ci.yml?branch=main&label=CI)](https://github.com/sauing/ECC_rankings/actions)
+[![CI](https://github.com/sauing/ECC_Ranking/actions/workflows/ci.yml/badge.svg)](https://github.com/sauing/ECC_Ranking/actions/workflows/ci.yml)
 
 Scrape KNCB matchcentre stats for **Eindhoven CC**, compute ICC-style club rankings (klasse-weighted), and publish to **GitHub Pages** from the `docs/` folder.
 
