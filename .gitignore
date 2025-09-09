@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+.env
+
+# OS/IDE
+.DS_Store
+.idea/
+.vscode/
+
+# Artifacts
+*.log
+
+# If you ever dump CSVs locally
+*.csv
