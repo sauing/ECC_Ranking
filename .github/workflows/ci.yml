@@ -1,47 +1,22 @@
-
----
-
-## 13) GitHub Actions (optional) — `.github/workflows/publish.yml`
-
-```yaml
-name: Build & Publish Pages
-
+# .github/workflows/ci.yml
+name: CI
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: "0 5 * * 1"   # every Monday 05:00 UTC
+  push:
+    branches: [ main, master ]
+  pull_request:
 
 permissions:
   contents: write
 
 jobs:
-  build:
+  tests:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-
-      - name: Install deps
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run generator (headless)
-        env:
-          HEADLESS: "1"
-          ECC_OUTPUT_DIR: "docs"
-        run: |
-          python -m ecc_rankings.run
-
-      - name: Commit updated docs
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/
-          git commit -m "chore: refresh rankings [skip ci]" || echo "No changes"
-          git push
+          python-version: '3.11'
+      - run: python -m pip install --upgrade pip
+      - run: pip install -r requirement.txt pytest
+      - name: Run tests
+        run: pytest
