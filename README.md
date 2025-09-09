@@ -1,53 +1,13 @@
-[![CI](https://github.com/sauing/ECC_Ranking/actions/workflows/ci.yml/badge.svg)](https://github.com/sauing/ECC_Ranking/actions/workflows/ci.yml)
+# ECC Rankings (KNCB)
 
-# ECC_Ranking: KNCB Stats Scraper
+Scrape KNCB matchcentre stats for **Eindhoven CC**, compute ICC-style club rankings (klasse-weighted), and publish to **GitHub Pages** from the `docs/` folder.
 
-This project scrapes and ranks KNCB cricket stats for Eindhoven CC, generating sortable HTML reports for bowling and batting, with ICC-style points.
+## Quick start
 
-## Features
-- Selenium-based scraping of KNCB stats (batting & bowling)
-- ICC-style points calculation
-- Sortable HTML output
-- Modular, extensible Python project structure
+```bash
 
-## Usage
-
-1. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-2. **Run the main script:**
-   ```bash
-   python -m ecc_ranking.main
-   ```
-
-3. **Output:**
-   - `kncb_bowling_stats_2025.html`
-   - `kncb_batting_stats_2025.html`
-
-## Project Structure
-
-- `ecc_ranking/` - Main package
-  - `scraping/` - Scraper classes
-  - `utils.py` - Selenium driver/service helpers
-  - `config.py` - Configurations
-  - `main.py` - Entrypoint
-- `tests/` - Test suite
-
-## Requirements
-- Python 3.8+
-- Google Chrome browser
-- ChromeDriver (auto-managed or manual)
-
-## Notes
-- For ChromeDriver issues, see the error messages or [chromedriver downloads](https://chromedriver.chromium.org/downloads).
-- For headless mode, edit `config.py`.
-
-## License
-MIT
-
-## 📊 View Published Stats
-
-- [Batting Stats 2025](https://sauing.github.io/ECC_Ranking/kncb_batting_stats_2025.html)
-- [Bowling Stats 2025](https://sauing.github.io/ECC_Ranking/kncb_bowling_stats_2025.html)
+python -m venv .venv
+. .venv/Scripts/activate  # Windows
+pip install -r requirements.txt
+python -m ecc_rankings.run
+```

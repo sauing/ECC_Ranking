@@ -1,54 +1,18 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
-*.py[cod]
-*$py.class
+*.pyc
+*.pyo
+*.pyd
+.venv/
+.env
 
-# C extensions
-*.so
+# OS/IDE
+.DS_Store
+.idea/
+.vscode/
 
-# Distribution / packaging
-.Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Selenium/Chrome
-chromedriver*
+# Artifacts
 *.log
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# IDEs
-.vscode/
-.idea/
-*.sublime-workspace
-*.sublime-project
-*.iml
-
-# OS
-.DS_Store
-Thumbs.db
-
+# If you ever dump CSVs locally
+*.csv
