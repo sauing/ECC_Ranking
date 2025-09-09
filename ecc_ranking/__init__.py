@@ -1,2 +1,0 @@
-# ecc_ranking package
-
