@@ -19,7 +19,7 @@ jobs:
           python-version: '3.11'
       - name: Check for requirements.txt
         run: |
-          if [ ! -f requirements.txt ]; then
+          if [ ! -f requirement.txt ]; then
             echo "ERROR: requirements.txt not found in repository root."
             exit 1
           fi
