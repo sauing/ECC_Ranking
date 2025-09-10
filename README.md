@@ -2,9 +2,13 @@
 
 [![CI](https://github.com/sauing/ECC_Ranking/actions/workflows/ci.yml/badge.svg)](https://github.com/sauing/ECC_Ranking/actions/workflows/ci.yml)
 
+**[View Published Rankings Page](https://sauing.github.io/ECC_Ranking/)**
+
 Scrape KNCB matchcentre stats for **Eindhoven CC**, compute ICC-style club rankings (klasse-weighted), and publish to **GitHub Pages** from the `docs/` folder.
 
 ## Quick start
+
+> **Note:** Ensure that `requirements.txt` exists in the repository root before running setup or CI.
 
 ```bash
 python -m venv .venv
@@ -12,11 +16,3 @@ python -m venv .venv
 pip install -r requirements.txt
 python -m ecc_rankings.run
 ```
-
-## Published Stats Pages
-
-The following pages are published via GitHub Pages from the `docs/` folder:
-
-- [Allrounder Stats 2025](docs/kncb_allrounder_stats_2025.html)
-- [Batting Stats 2025](docs/kncb_batting_stats_2025.html)
-- [Bowling Stats 2025](docs/kncb_bowling_stats_2025.html)
