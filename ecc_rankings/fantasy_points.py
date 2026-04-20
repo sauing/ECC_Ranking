@@ -2,18 +2,24 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from dataclasses import dataclass
 from datetime import date
 from typing import Any
 
 import pandas as pd
+from selenium.webdriver.common.by import By
 
 from .config import (
+    CHROME_PATH,
     CLUB_NAME,
     EINDHOVEN_NAME_MAP,
+    HEADLESS,
     SCORECARD_BATTING_URLS,
     SCORECARD_BOWLING_URLS,
+    WINDOW_SIZE,
 )
+from .driver import get_driver
 
 
 @dataclass(frozen=True)
@@ -99,9 +105,44 @@ def _is_bowling_table(df: pd.DataFrame) -> bool:
     return bool(c_overs and c_maid and c_runs and c_wkts)
 
 
-def _batting_from_url(url: str, aliases: dict[str, str]) -> pd.DataFrame:
+def _tables_from_rendered_div_rows(driver) -> list[pd.DataFrame]:
+    rows = driver.find_elements(By.XPATH, "//*[@id='page-wrap']/div[4]/div/div[4]/div/div")
+    if not rows:
+        return []
+    raw = [r.text.split("\n") for r in rows if r.text.strip()]
+    if len(raw) < 2:
+        return []
+    header = raw[0]
+    body = [r[: len(header)] for r in raw[1:]]
+    return [pd.DataFrame(body, columns=header)]
+
+
+def _safe_read_tables(url: str, driver=None) -> list[pd.DataFrame]:
+    try:
+        tables = pd.read_html(url)
+        if tables:
+            return tables
+    except ValueError:
+        pass
+
+    if driver is None:
+        return []
+
+    driver.get(url)
+    time.sleep(3)
+    try:
+        tables = pd.read_html(driver.page_source)
+        if tables:
+            return tables
+    except ValueError:
+        pass
+
+    return _tables_from_rendered_div_rows(driver)
+
+
+def _batting_from_url(url: str, aliases: dict[str, str], driver=None) -> pd.DataFrame:
     out = []
-    tables = pd.read_html(url)
+    tables = _safe_read_tables(url, driver=driver)
     for df in tables:
         if not _is_batting_table(df):
             continue
@@ -131,9 +172,9 @@ def _batting_from_url(url: str, aliases: dict[str, str]) -> pd.DataFrame:
     return pd.DataFrame(out)
 
 
-def _bowling_from_url(url: str, aliases: dict[str, str]) -> pd.DataFrame:
+def _bowling_from_url(url: str, aliases: dict[str, str], driver=None) -> pd.DataFrame:
     out = []
-    tables = pd.read_html(url)
+    tables = _safe_read_tables(url, driver=driver)
     for df in tables:
         if not _is_bowling_table(df):
             continue
@@ -238,8 +279,12 @@ def build_fantasy_points_json(
     batting_urls = batting_urls or list(SCORECARD_BATTING_URLS)
     bowling_urls = bowling_urls or list(SCORECARD_BOWLING_URLS)
 
-    batting_df = _merge_numeric([_batting_from_url(u, aliases) for u in batting_urls])
-    bowling_df = _merge_numeric([_bowling_from_url(u, aliases) for u in bowling_urls])
+    driver = get_driver(CHROME_PATH, HEADLESS, WINDOW_SIZE)
+    try:
+        batting_df = _merge_numeric([_batting_from_url(u, aliases, driver=driver) for u in batting_urls])
+        bowling_df = _merge_numeric([_bowling_from_url(u, aliases, driver=driver) for u in bowling_urls])
+    finally:
+        driver.quit()
     merged = _merge_numeric([batting_df, bowling_df])
 
     players = []
