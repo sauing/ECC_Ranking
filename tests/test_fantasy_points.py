@@ -48,6 +48,7 @@ def test_points_economy_penalty_applies_only_after_4_overs():
 def test_name_mapping_resolves_initials_and_dots():
     aliases = _name_aliases()
     assert _resolve_name("A Manohar", aliases) == "aarav manohar"
+    assert _resolve_name("A MANOHAR", aliases) == "aarav manohar"
     assert _resolve_name("J.K Singh", aliases) == "jk singh"
 
 
@@ -65,3 +66,9 @@ def test_safe_read_tables_falls_back_to_driver_html(monkeypatch):
     assert len(tables) == 1
     assert isinstance(tables[0], pd.DataFrame)
     assert list(tables[0].columns) == ["Player", "R"]
+
+
+def test_name_mapping_fallback_keeps_unmapped_player():
+    aliases = _name_aliases()
+    assert _resolve_name("New Player", aliases) == "New Player"
+    assert _resolve_name("Extras", aliases) is None

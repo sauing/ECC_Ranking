@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import time
+from io import StringIO
 from dataclasses import dataclass
 from datetime import date
 from typing import Any
@@ -57,7 +58,7 @@ def _to_num(v: Any, default: float = 0.0) -> float:
 
 
 def _canon_name(name: Any) -> str:
-    s = str(name or "").strip().lower()
+    s = str(name or "").strip().casefold()
     s = s.replace(".", " ")
     s = re.sub(r"\s+", " ", s)
     return s
@@ -67,10 +68,23 @@ def _name_aliases() -> dict[str, str]:
     return {_canon_name(k): v for k, v in EINDHOVEN_NAME_MAP.items()}
 
 
+def _clean_player_label(name: Any) -> str:
+    s = str(name or "").strip()
+    s = re.sub(r"\s+", " ", s)
+    return s
+
+
+def _is_non_player_row(name: Any) -> bool:
+    s = _canon_name(name)
+    bad = ("extras", "total", "did not bat", "fall of wickets", "yet to bat")
+    return any(b in s for b in bad) or s in {"", "nan", "none"}
+
+
 def _resolve_name(name: Any, aliases: dict[str, str]) -> str | None:
-    k = _canon_name(name)
-    if not k:
+    if _is_non_player_row(name):
         return None
+
+    k = _canon_name(name)
     if k in aliases:
         return aliases[k]
 
@@ -78,7 +92,10 @@ def _resolve_name(name: Any, aliases: dict[str, str]) -> str | None:
     compact = re.sub(r"\s+", " ", k)
     if compact in aliases:
         return aliases[compact]
-    return None
+
+    # Keep original player if alias is missing (prevents empty outputs when scorecard uses full names)
+    cleaned = _clean_player_label(name)
+    return cleaned if cleaned else None
 
 
 def _choose_col(df: pd.DataFrame, candidates: tuple[str, ...]) -> str | None:
@@ -131,7 +148,7 @@ def _safe_read_tables(url: str, driver=None) -> list[pd.DataFrame]:
     driver.get(url)
     time.sleep(3)
     try:
-        tables = pd.read_html(driver.page_source)
+        tables = pd.read_html(StringIO(driver.page_source))
         if tables:
             return tables
     except ValueError:
