@@ -99,27 +99,52 @@ def _resolve_name(name: Any, aliases: dict[str, str]) -> str | None:
 
 
 def _choose_col(df: pd.DataFrame, candidates: tuple[str, ...]) -> str | None:
-    lowered = {str(c).strip().lower(): c for c in df.columns}
+    labels = [(c, re.sub(r"\s+", " ", str(c).strip().lower())) for c in df.columns]
+
     for cand in candidates:
-        if cand.lower() in lowered:
-            return lowered[cand.lower()]
+        c = cand.strip().lower()
+        best: tuple[int, str] | None = None
+
+        for col, label in labels:
+            if label == c:
+                score = 3
+            else:
+                tokens = [t for t in re.split(r"[^a-z0-9]+", label) if t]
+                if c in tokens:
+                    score = 2
+                elif len(c) > 1 and c in label:
+                    score = 1
+                else:
+                    score = -1
+
+            if score >= 0 and (best is None or score > best[0]):
+                best = (score, col)
+
+        if best is not None:
+            return best[1]
     return None
 
 
 def _is_batting_table(df: pd.DataFrame) -> bool:
     c_runs = _choose_col(df, ("R", "Runs"))
     c_balls = _choose_col(df, ("B", "BF", "Balls"))
-    c_fours = _choose_col(df, ("4s", "4"))
-    c_sixes = _choose_col(df, ("6s", "6"))
-    return bool(c_runs and c_balls and c_fours and c_sixes)
+    return bool(c_runs and c_balls)
 
 
 def _is_bowling_table(df: pd.DataFrame) -> bool:
     c_overs = _choose_col(df, ("O", "Overs"))
-    c_maid = _choose_col(df, ("M", "Mdns", "Maidens"))
     c_runs = _choose_col(df, ("R", "Runs"))
     c_wkts = _choose_col(df, ("W", "Wkts", "Wickets"))
-    return bool(c_overs and c_maid and c_runs and c_wkts)
+    return bool(c_overs and c_runs and c_wkts)
+
+
+def _numbers_from_row(row: pd.Series) -> list[float]:
+    nums = []
+    for v in row.tolist():
+        n = _to_num(v, default=float("nan"))
+        if not (isinstance(n, float) and (n != n)):
+            nums.append(float(n))
+    return nums
 
 
 def _tables_from_rendered_div_rows(driver) -> list[pd.DataFrame]:
@@ -167,21 +192,25 @@ def _batting_from_url(url: str, aliases: dict[str, str], driver=None) -> pd.Data
         player_col = df.columns[0]
         c_runs = _choose_col(df, ("R", "Runs"))
         c_balls = _choose_col(df, ("B", "BF", "Balls"))
-        c_fours = _choose_col(df, ("4s", "4"))
-        c_sixes = _choose_col(df, ("6s", "6"))
+        c_fours = _choose_col(df, ("4s", "4", "fours"))
+        c_sixes = _choose_col(df, ("6s", "6", "sixes"))
 
         for _, r in df.iterrows():
             full = _resolve_name(r.get(player_col), aliases)
             if not full:
                 continue
-            runs = int(_to_num(r.get(c_runs, 0)))
+            nums = _numbers_from_row(r)
+            runs = int(_to_num(r.get(c_runs, nums[0] if nums else 0)))
+            balls = int(_to_num(r.get(c_balls, nums[1] if len(nums) > 1 else 0)))
+            fours = int(_to_num(r.get(c_fours, nums[2] if len(nums) > 2 else 0)))
+            sixes = int(_to_num(r.get(c_sixes, nums[3] if len(nums) > 3 else 0)))
             out.append(
                 {
                     "player_name": full,
                     "runs": runs,
-                    "Four": int(_to_num(r.get(c_fours, 0))),
-                    "Sixes": int(_to_num(r.get(c_sixes, 0))),
-                    "Balls": int(_to_num(r.get(c_balls, 0))),
+                    "Four": fours,
+                    "Sixes": sixes,
+                    "Balls": balls,
                     "50 runs": 1 if runs >= 50 else 0,
                     "100 runs": 1 if runs >= 100 else 0,
                 }
@@ -207,14 +236,19 @@ def _bowling_from_url(url: str, aliases: dict[str, str], driver=None) -> pd.Data
             full = _resolve_name(r.get(player_col), aliases)
             if not full:
                 continue
-            wkts = int(_to_num(r.get(c_wkts, 0)))
+            nums = _numbers_from_row(r)
+            overs = float(_to_num(r.get(c_overs, nums[0] if nums else 0)))
+            maid = int(_to_num(r.get(c_maid, nums[1] if len(nums) > 1 else 0)))
+            runs = int(_to_num(r.get(c_runs, nums[2] if len(nums) > 2 else 0)))
+            wkts = int(_to_num(r.get(c_wkts, nums[3] if len(nums) > 3 else 0)))
+            econ = float(_to_num(r.get(c_econ, nums[4] if len(nums) > 4 else 0)))
             out.append(
                 {
                     "player_name": full,
-                    "Overs": float(_to_num(r.get(c_overs, 0))),
-                    "Maiden": int(_to_num(r.get(c_maid, 0))),
-                    "Runs": int(_to_num(r.get(c_runs, 0))),
-                    "Economy": float(_to_num(r.get(c_econ, 0))),
+                    "Overs": overs,
+                    "Maiden": maid,
+                    "Runs": runs,
+                    "Economy": econ,
                     "wickets": wkts,
                     "3 Wicket": 1 if wkts >= 3 else 0,
                     "5 Wicket": 1 if wkts >= 5 else 0,
@@ -303,6 +337,9 @@ def build_fantasy_points_json(
     finally:
         driver.quit()
     merged = _merge_numeric([batting_df, bowling_df])
+
+    if merged.empty:
+        raise RuntimeError("No player rows extracted from scorecards. Check scorecard URLs/period IDs and mapping.")
 
     players = []
     for _, r in merged.iterrows():

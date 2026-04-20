@@ -1,6 +1,6 @@
 import pandas as pd
 
-from ecc_rankings.fantasy_points import FantasyRules, _name_aliases, _points_from_row, _resolve_name, _safe_read_tables
+from ecc_rankings.fantasy_points import FantasyRules, _choose_col, _name_aliases, _points_from_row, _resolve_name, _safe_read_tables
 
 
 class _FakeDriver:
@@ -72,3 +72,10 @@ def test_name_mapping_fallback_keeps_unmapped_player():
     aliases = _name_aliases()
     assert _resolve_name("New Player", aliases) == "New Player"
     assert _resolve_name("Extras", aliases) is None
+
+
+def test_choose_col_handles_fuzzy_headers():
+    df = pd.DataFrame(columns=["Batting R", "Balls (B)", "4s count", "Wickets W"])
+    assert _choose_col(df, ("R", "Runs")) == "Batting R"
+    assert _choose_col(df, ("B", "BF")) == "Balls (B)"
+    assert _choose_col(df, ("W", "Wkts")) == "Wickets W"
